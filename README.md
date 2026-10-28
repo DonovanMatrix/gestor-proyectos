@@ -1,167 +1,339 @@
 # Gestor de Proyectos con EDT y Kanban
 
-## Descripción
+Aplicación web local desarrollada en Python para organizar, planificar y dar seguimiento al trabajo de un proyecto mediante una **Estructura de Desglose del Trabajo (EDT)** y un tablero **Kanban**.
 
-Aplicación web **local** para planificar y dar seguimiento a un proyecto.
+El proyecto aplica principios de programación funcional mediante una arquitectura que separa las reglas de negocio puras de los efectos externos, como la persistencia en SQLite y la interfaz de usuario.
 
-* La **EDT** (Estructura de Desglose del Trabajo) responde: **¿qué trabajo hay que realizar?**
-  Se organiza como `Proyecto → Entregable → Tarea`.
-* El **Kanban** responde: **¿en qué estado está ese trabajo?**
-  Cada tarea está en una columna: Pendiente, En progreso, En revisión o Terminada.
+## Tabla de contenidos
 
-Permite crear un proyecto, registrar integrantes, crear entregables y tareas, asignar responsable y
-prioridad, mover tareas por el tablero con transiciones válidas, filtrar por estado / responsable /
-prioridad, y guardar todo en SQLite. Los errores, datos inválidos y listas vacías se comunican con
-mensajes claros.
+- [Características](#características)
+- [Tecnologías](#tecnologías)
+- [Requisitos previos](#requisitos-previos)
+- [Instalación y ejecución](#instalación-y-ejecución)
+- [Pruebas](#pruebas)
+- [Arquitectura](#arquitectura)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Estructura de Desglose del Trabajo (EDT)](#estructura-de-desglose-del-trabajo-edt)
+- [Tablero Kanban](#tablero-kanban)
+- [Programación funcional](#programación-funcional)
+- [Decisiones técnicas](#decisiones-técnicas)
+- [Colaboración y contribuciones](#colaboración-y-contribuciones)
 
-El objetivo académico es demostrar programación funcional: un **Functional Core** de reglas puras
-y una **Imperative Shell** que se encarga de la interfaz y de los efectos externos.
+## Características
+
+La aplicación permite:
+
+- Crear y gestionar un proyecto.
+- Registrar integrantes y asignar responsables.
+- Organizar el trabajo en entregables y tareas mediante la EDT.
+- Visualizar las tareas en un tablero Kanban.
+- Asignar prioridades y responsables a las tareas.
+- Cambiar el estado de las tareas respetando las transiciones permitidas.
+- Filtrar tareas por estado, responsable, prioridad y entregable.
+- Consultar el porcentaje de finalización de los entregables.
+- Persistir los datos utilizando SQLite.
+- Mostrar mensajes claros cuando existen errores, datos inválidos o listas vacías.
+- Cargar datos de prueba para explorar las funcionalidades de la aplicación.
 
 ## Tecnologías
 
-Python 3.10 o superior (se usa `match/case`), ReactPy, FastAPI, SQLite (módulo `sqlite3`) y pytest.
+| Tecnología | Propósito |
+|---|---|
+| Python 3.10 o superior | Lógica de negocio y aplicación |
+| ReactPy | Interfaz web basada en componentes Python |
+| FastAPI | Servir e integrar la aplicación ReactPy |
+| SQLite | Persistencia de los datos |
+| `pytest` | Ejecución de pruebas automatizadas |
 
-FastAPI solo **sirve la aplicación ReactPy**. No hay API REST propia ni endpoints CRUD.
+**Nota:** FastAPI se utiliza para servir la interfaz ReactPy. El proyecto no implementa una API REST propia ni endpoints CRUD independientes.
 
-## Instalación
+## Requisitos previos
 
-Desde la carpeta del proyecto:
+Antes de ejecutar el proyecto, asegúrate de tener instalado:
+
+- Python 3.10 o una versión superior.
+- Git, si deseas clonar el repositorio.
+- Una terminal como PowerShell en Windows.
+
+Puedes verificar tu versión de Python con:
 
 ```bash
-# 1. Crear el entorno virtual
+python --version
+```
+
+## Instalación y ejecución
+
+### 1. Obtener el proyecto
+
+Si todavía no tienes una copia local, clona el repositorio:
+
+```bash
+git clone https://github.com/DonovanMatrix/gestor-proyectos.git
+cd gestor-proyectos
+```
+
+Si ya tienes el proyecto descargado, entra directamente en su carpeta.
+
+### 2. Crear un entorno virtual
+
+```bash
 python -m venv .venv
-
-# 2. Activarlo
-#    Windows (PowerShell):   .venv\Scripts\Activate.ps1
-#    Windows (cmd):          .venv\Scripts\activate.bat
-#    Linux / macOS:          source .venv/bin/activate
-
-# 3. Instalar las dependencias
-pip install -r requirements.txt
 ```
 
-## Ejecución
+### 3. Activar el entorno virtual
+
+**Windows PowerShell:**
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+**Windows CMD:**
+
+```bat
+.venv\Scripts\activate.bat
+```
+
+**Linux o macOS:**
 
 ```bash
-uvicorn app.main:app --reload
+source .venv/bin/activate
 ```
 
-Abre <http://127.0.0.1:8000> en el navegador. La base de datos `gestor_proyectos.db` se crea sola
-en la carpeta desde la que ejecutas el comando (puedes cambiar la ruta con la variable de entorno
-`GESTOR_DB`).
+### 4. Instalar las dependencias
 
-Para probar rápido, en la pantalla principal pulsa **Cargar datos de prueba** (proyecto
-"Sistema de Biblioteca", 3 integrantes, 4 entregables y 4 tareas repartidas por el Kanban).
+```bash
+python -m pip install -r requirements.txt
+```
+
+### 5. Iniciar la aplicación
+
+Desde la raíz del proyecto, ejecuta:
+
+```bash
+python -m uvicorn app.main:app --reload
+```
+
+Abre la siguiente dirección en tu navegador:
+
+**http://127.0.0.1:8000**
+
+La aplicación se ejecuta localmente. Para que otras personas puedan acceder desde sus propios dispositivos, es necesario configurar el acceso de red o desplegarla en un servidor.
+
+### Datos de prueba
+
+En la pantalla principal, utiliza el botón **Cargar datos de prueba** para explorar un escenario de ejemplo con un proyecto denominado *Sistema de Biblioteca*, tres integrantes, cuatro entregables y cuatro tareas.
+
+### Base de datos
+
+La aplicación utiliza SQLite para guardar la información. La base de datos `gestor_proyectos.db` se crea en la carpeta desde la que se ejecuta el comando, según la configuración descrita en el proyecto.
+
+La ruta puede modificarse mediante la variable de entorno `GESTOR_DB`.
 
 ## Pruebas
+
+Para ejecutar las pruebas automatizadas, utiliza:
 
 ```bash
 pytest
 ```
 
-Las pruebas **no necesitan** ReactPy ni FastAPI: prueban el core puro y el adaptador SQLite con una
-base **en memoria** (`:memory:`), nunca con la base real.
+Las pruebas están diseñadas para comprobar el comportamiento del core funcional y los componentes de persistencia sin depender de la interfaz web.
+
+Las pruebas de SQLite utilizan una base de datos en memoria (`:memory:`), evitando operar sobre la base de datos real de la aplicación.
 
 ## Arquitectura
 
-```text
-app/
-  domain/      Modelos inmutables (models.py) y Result/Option (result.py)
-  core/        FUNCTIONAL CORE: reglas puras
-  adapters/    SQLite (database.py) y decorador (decoradores.py)
-  shell.py     Casos de uso: coordinan core + SQLite
-  ui/          Pantallas ReactPy
-  main.py      Ensamble: FastAPI + ReactPy
-tests/
-  unit/        Pruebas del core (sin SQLite, ReactPy ni FastAPI)
-  integration/ Pruebas de SQLite y de la shell
-```
+El proyecto sigue el enfoque **Functional Core / Imperative Shell**.
+
+### Functional Core
+
+Contiene las reglas de negocio y las transformaciones de datos. Sus funciones buscan ser puras e inmutables: reciben datos, calculan un resultado y no realizan operaciones externas.
+
+Entre sus responsabilidades están:
+
+- Validar datos y reglas de negocio.
+- Filtrar y ordenar tareas.
+- Construir la EDT.
+- Comprobar las transiciones del Kanban.
+- Calcular resultados y representar errores mediante tipos explícitos.
+
+### Imperative Shell
+
+Coordina las operaciones que interactúan con el entorno externo:
+
+- Recibir las acciones de la interfaz.
+- Coordinar los casos de uso.
+- Leer y escribir datos en SQLite.
+- Registrar operaciones y manejar errores de persistencia.
+- Integrar ReactPy con FastAPI.
+
+### Flujo general
 
 ```text
-Usuario → ReactPy (ui/) → Shell (shell.py) → Core (core/) → Success / Failure
-                                      ↓
-                      Shell guarda en SQLite o muestra el mensaje de error
+Usuario
+   |
+   v
+Interfaz ReactPy (app/ui/)
+   |
+   v
+Casos de uso (app/shell.py)
+   |
+   v
+Reglas de negocio (app/core/)
+   |
+   v
+Resultados: Success / Failure
+   |
+   v
+Shell y adaptadores: persistencia y mensajes
 ```
 
-| | FUNCTIONAL CORE (`app/core/`, `app/domain/`) | IMPERATIVE SHELL (`app/adapters/`, `app/shell.py`, `app/ui/`, `app/main.py`) |
+La interfaz presenta los resultados al usuario, mientras que el core mantiene separadas las reglas de negocio de los efectos externos.
+
+## Estructura del proyecto
+
+```text
+gestor-proyectos/
+├── app/
+│   ├── domain/       # Modelos, Result y Option
+│   ├── core/         # Reglas de negocio puras
+│   ├── adapters/     # Persistencia SQLite y decoradores
+│   ├── ui/           # Interfaz ReactPy
+│   ├── shell.py      # Casos de uso y coordinación
+│   └── main.py       # Integración FastAPI + ReactPy
+├── tests/
+│   ├── unit/         # Pruebas unitarias del core
+│   └── integration/  # Pruebas de persistencia y shell
+├── docs/             # Documentación adicional
+├── .gitignore
+├── pytest.ini
+├── requirements.txt
+└── README.md
+```
+
+## Estructura de Desglose del Trabajo (EDT)
+
+La EDT responde a la pregunta: **¿qué trabajo hay que realizar?**
+
+Organiza el proyecto jerárquicamente:
+
+```text
+Proyecto
+└── Entregables
+    └── Tareas
+```
+
+Cada entregable agrupa tareas relacionadas. La pantalla EDT permite crear y visualizar esta estructura, así como consultar el porcentaje de tareas terminadas de cada entregable.
+
+La estructura se construye mediante `construir_edt`, una función del core que transforma los datos sin modificarlos.
+
+## Tablero Kanban
+
+El tablero Kanban responde a la pregunta: **¿en qué estado se encuentra el trabajo?**
+
+Las tareas pueden encontrarse en cuatro estados:
+
+1. **Pendiente**
+2. **En progreso**
+3. **En revisión**
+4. **Terminada**
+
+### Transiciones permitidas
+
+| Estado actual | Estados permitidos |
+|---|---|
+| Pendiente | En progreso |
+| En progreso | En revisión, Pendiente |
+| En revisión | Terminada, En progreso |
+| Terminada | En progreso |
+
+Estas reglas evitan saltos de estado no permitidos. Por ejemplo, una tarea pendiente no puede pasar directamente a terminada, ya que debe pasar por las etapas intermedias definidas.
+
+Cuando una transición no es válida, el core devuelve un resultado `Failure`. La tarea original permanece sin modificaciones y no se guarda un cambio inválido en la base de datos.
+
+## Programación funcional
+
+Uno de los objetivos académicos del proyecto es demostrar conceptos de programación funcional aplicados a un sistema de gestión de proyectos.
+
+| Concepto | Ubicación principal | Evidencia |
 |---|---|---|
-| Qué hace | Reglas puras: validar, cambiar estado, filtrar, ordenar, calcular | Efectos externos: SQLite, ReactPy, FastAPI, logs |
-| Misma entrada | Siempre la misma salida | Depende del entorno (base de datos, usuario) |
-| Importa | Solo la biblioteca estándar y `app.domain` | `sqlite3`, `reactpy`, `fastapi`, `logging` |
-| Errores | Devuelve `Failure`, no lanza excepciones | Convierte errores de SQLite en `Failure` y los muestra al usuario |
+| Funciones de orden superior | `app/core/filtros.py` | `filtrar_tareas` recibe un criterio funcional. |
+| Lambdas | `app/core/filtros.py` | Funciones anónimas para criterios de ordenamiento y filtrado. |
+| Closures | `app/core/filtros.py` | Filtros que conservan valores recibidos al crearse. |
+| Pattern matching | `app/core/kanban.py` | Uso de `match/case` para estados y transiciones. |
+| Inmutabilidad | `app/domain/models.py` | Modelos inmutables y creación de copias con `replace`. |
+| Pureza | `app/core/` | Reglas de negocio que evitan efectos externos. |
+| Efectos secundarios | `app/adapters/`, `app/shell.py`, `app/ui/` | Persistencia, coordinación y operaciones de interfaz. |
+| Ausencia de valor | `app/domain/result.py` | Tipos `Some` y `Nothing` para representar presencia o ausencia. |
+| Manejo funcional de errores | `app/domain/result.py` | Tipos `Success` y `Failure`. |
+| Decoradores | `app/adapters/decoradores.py` | `registrar_operacion` registra y mide operaciones. |
+| Composición funcional | `app/domain/result.py` | Operaciones como `mapear`, `encadenar` y `tuberia`. |
 
-**Regla de oro:** el core nunca importa `sqlite3`, `reactpy`, `fastapi`, ni lee archivos ni imprime.
+### Regla de separación
 
-## EDT
+El core no debe depender directamente de SQLite, ReactPy, FastAPI, la lectura de archivos ni la impresión en consola. Los efectos externos se gestionan desde la shell y los adaptadores.
 
-Es el árbol del trabajo a realizar: el proyecto se descompone en **entregables** (paquetes de
-trabajo) y cada entregable en **tareas**. La pantalla EDT crea y muestra esta estructura con el
-porcentaje terminado de cada entregable. Se arma con `construir_edt` (core) sin modificar los datos.
+Esta separación facilita probar las reglas de negocio de manera aislada y mantener una arquitectura más organizada.
 
-## Kanban
-
-Estados (en este orden): **Pendiente → En progreso → En revisión → Terminada**.
-
-| Desde | Transiciones permitidas | Justificación |
-|---|---|---|
-| Pendiente | En progreso | Se empieza a trabajar |
-| En progreso | En revisión, Pendiente | Avance normal / se pausa y vuelve a la cola |
-| En revisión | Terminada, En progreso | Se aprueba / la revisión se rechaza y hay que corregir |
-| Terminada | En progreso | Se reabre porque apareció un error |
-
-Todo lo demás se rechaza (por ejemplo, `Pendiente → Terminada`: no puede saltarse la revisión).
-Si la transición no es válida, el core devuelve un `Failure` con un mensaje y **la tarea original no
-se modifica ni se guarda nada**. Los botones de cada tarjeta ofrecen *todos* los otros estados a
-propósito, para poder demostrar el rechazo de transiciones inválidas.
-
-## Programación funcional: evidencias
-
-| Concepto | Archivo | Función | Evidencia |
-|---|---|---|---|
-| Del cómo al qué | `app/core/filtros.py` | `filtrar_tareas`, `ordenar_tareas` | Se describe el resultado ("las tareas que cumplen X", "ordenadas por Y") con expresiones generadoras y `sorted`, sin bucles con `append`. También `construir_edt` en `core/entregables.py` y `tuberia` en `domain/result.py`. |
-| Pattern matching | `app/core/kanban.py` | `estados_siguientes`, `validar_transicion` | `match estado:` con un `case` por estado y `match (actual, nuevo):` sobre el par. También se usa `match` sobre `Success/Failure` y `Some/Nothing` (`ui/comunes.py`, `core/integrantes.py`). |
-| Funciones de orden superior | `app/core/filtros.py` | `filtrar_tareas(tareas, criterio)` | Recibe una función como criterio; la usa el Kanban. También `mapear`, `encadenar`, `tuberia` (`domain/result.py`) y `_criterio_opcional`. |
-| Lambdas | `app/core/filtros.py` | `ordenar_tareas`, `crear_filtro_por_*` | `key=lambda t: (PESO_PRIORIDAD[t.prioridad], t.nombre.lower())`. Se usan en expresiones cortas; las funciones con varias líneas llevan nombre. |
-| Closures | `app/core/filtros.py` | `crear_filtro_por_estado`, `crear_filtro_por_responsable`, `crear_filtro_por_prioridad`, `crear_filtro_por_entregable` | La función devuelta recuerda el valor recibido (no hay estado mutable). Se usan en el Kanban y en `construir_edt`. Otra closure: `crear_manejador_mover` en `ui/kanban.py`. |
-| Inmutabilidad | `app/domain/models.py`, `app/core/kanban.py` | `Tarea` (`frozen=True`), `cambiar_estado` | `replace(tarea, estado=nuevo)` crea una copia; la original no cambia. Probado en `tests/unit/test_kanban.py` y `test_tareas.py`. |
-| Pureza | `app/core/` | `validar_tarea`, `cambiar_estado`, `filtrar_tareas`, `ordenar_tareas`, `contar_pendientes` | Sin imports de efectos. Misma entrada → misma salida. Se prueba sin SQLite ni ReactPy. |
-| Efectos secundarios | `app/adapters/database.py`, `app/shell.py`, `app/ui/` | `crear_tarea` (SQLite), `cambiar_estado_tarea`, componentes ReactPy | Toda lectura/escritura de SQLite, logs y estado de pantalla están fuera del core. |
-| Ausencia de valor | `app/domain/result.py`, `app/core/tareas.py` | `Some`, `Nothing`, `buscar_primero`, `buscar_tarea` | `buscar_tarea(tareas, 100)` devuelve `Nothing()`, nunca una tarea vacía. Igual `buscar_proyecto/integrante/entregable`. `de_opcion` lo convierte en "No existe la tarea.". |
-| Manejo funcional de errores | `app/domain/result.py` | `Success`, `Failure`, `Error`, `CodigoError` | Las reglas de negocio devuelven `Success/Failure`, sin excepciones. La shell traduce cada error a un mensaje (`shell.texto_error`). |
-| Decoradores | `app/adapters/decoradores.py` | `registrar_operacion` | Decora cada función de `database.py`: mide y registra el tiempo y avisa si devuelve `Failure`. No contiene reglas de negocio y devuelve el mismo resultado. |
-
-Una explicación más detallada, con cómo presentarlo al profesor y preguntas de práctica, está en
-[`docs/DEFENSA.md`](docs/DEFENSA.md).
+Para profundizar en los conceptos, su defensa académica y las posibles preguntas de evaluación, consulta [`docs/DEFENSA.md`](docs/DEFENSA.md).
 
 ## Decisiones técnicas
 
-* **`Result` y `Option` son distintos.** `Success/Failure` = ¿salió bien la operación?
-  `Some/Nothing` = ¿existe lo que se buscó? En SQLite, una consulta correcta que no encuentra nada
-  es `Success(Nothing())`.
-* **Archivos añadidos a la estructura sugerida:** `app/shell.py` (casos de uso, para que los
-  callbacks de ReactPy no contengan reglas) y `app/core/validaciones.py` (validaciones compartidas).
-  No se creó `ports/` porque no hacía falta.
-* **Los closures devuelven un criterio** (`tarea → bool`) y se combinan con `filtrar_tareas`.
-  El responsable se filtra por **id**, no por nombre, para evitar ambigüedades.
-* **"Pendientes" por integrante** = tareas asignadas que todavía no están Terminadas.
-* **Un solo proyecto activo:** el último creado es el "proyecto actual". La base admite varios.
-* **Las tareas nuevas** empiezan en *Pendiente* y su `id` es `None` hasta que SQLite lo asigna.
-* **Transacciones:** cada escritura va dentro de una transacción; si falla se hace rollback y no
-  queda nada guardado a medias.
+- **Result y Option tienen propósitos distintos.** `Success` y `Failure` representan el resultado de una operación; `Some` y `Nothing` representan la presencia o ausencia de un valor.
+- **La lógica se separa de la interfaz.** Los callbacks de ReactPy delegan las reglas de negocio a la shell y al core.
+- **Las tareas se identifican mediante IDs.** El filtro por responsable utiliza el identificador para evitar ambigüedades entre personas con nombres similares.
+- **Las tareas nuevas comienzan en estado Pendiente.** Su identificador se asigna cuando SQLite las guarda.
+- **Las escrituras utilizan transacciones.** Si una operación falla, se realiza rollback para evitar que queden cambios parciales.
+- **El proyecto mantiene un único proyecto activo en la interfaz.** La base de datos admite almacenar varios proyectos.
 
-## Subir el proyecto a GitHub
+## Colaboración y contribuciones
 
-El historial debe mostrar el aporte de **cada integrante**: cada persona debe hacer sus propios
-commits con su nombre y correo.
+El proyecto puede desarrollarse de forma colaborativa utilizando Git y GitHub. Cada integrante debe realizar sus propios cambios y registrarlos con su identidad de Git configurada correctamente.
 
-```bash
-git init
-git add .
-git commit -m "Proyecto inicial: gestor de proyectos con EDT y Kanban"
-git branch -M main
-git remote add origin https://github.com/USUARIO/NOMBRE-DEL-REPO.git
-git push -u origin main
-```
+### Flujo de trabajo recomendado
 
-Antes, crea en GitHub un repositorio **vacío** (sin README ni .gitignore) y reemplaza la URL.
-Cada integrante puede trabajar en una rama (`git checkout -b feature/mi-parte`) y abrir un Pull Request.
+1. Actualizar la copia local:
+
+   ```bash
+   git pull origin main
+   ```
+
+2. Crear una rama para una tarea específica:
+
+   ```bash
+   git checkout -b feature/descripcion-del-cambio
+   ```
+
+3. Realizar y probar los cambios.
+
+4. Revisar los archivos modificados:
+
+   ```bash
+   git status
+   ```
+
+5. Preparar y registrar la contribución:
+
+   ```bash
+   git add README.md
+   git commit -m "Mejora la documentación del proyecto"
+   ```
+
+6. Subir la rama:
+
+   ```bash
+   git push -u origin feature/descripcion-del-cambio
+   ```
+
+7. Abrir un Pull Request en GitHub para revisar e integrar los cambios.
+
+Si se trabaja directamente sobre `main`, es necesario tener los permisos correspondientes y coordinar los cambios con el resto del equipo.
+
+Los mensajes de commit deben describir los cambios realizados realmente. La autoría de cada contribución debe corresponder a la persona que la efectuó.
+
+---
+
+**Proyecto académico:** Gestor de Proyectos con EDT y Kanban.
+
+**Repositorio:** https://github.com/DonovanMatrix/gestor-proyectos
