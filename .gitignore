@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Cachés y pruebas
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Base de datos local (cada integrante crea la suya al ejecutar)
+*.db
+*.sqlite
+*.sqlite3
+
+# Editores y sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
