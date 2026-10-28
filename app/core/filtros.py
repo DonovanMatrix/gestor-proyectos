@@ -45,6 +45,16 @@ def crear_filtro_por_prioridad(prioridad: Prioridad):
 def crear_filtro_por_entregable(entregable_id: int):
     return lambda tarea: tarea.entregable_id == entregable_id
 
+def crear_filtro_por_texto(texto: str):
+    """Closure: la tarea cumple si su nombre o descripción contiene `texto`.
+
+    No distingue mayúsculas de minúsculas. Un texto vacío deja pasar todo.
+    """
+    buscado = texto.strip().lower()
+    return lambda tarea: (
+        buscado in tarea.nombre.lower() or buscado in tarea.descripcion.lower()
+    )
+
 
 def acepta_todo(tarea) -> bool:
     """Criterio "sin filtro": toda tarea pasa."""
@@ -69,8 +79,8 @@ def _criterio_opcional(texto, convertir, crear_filtro):
     return mapear(convertir(texto), crear_filtro)
 
 
-def criterio_desde_textos(estado, responsable, prioridad):
-    """Construye UN criterio a partir de los tres selectores de la interfaz.
+def criterio_desde_textos(estado, responsable, prioridad, busqueda=""):
+    """Construye UN criterio a partir de los tres selectores y la búsqueda por texto.
 
     Devuelve Success(criterio) o Failure si algún texto no es válido.
     """
@@ -91,6 +101,7 @@ def criterio_desde_textos(estado, responsable, prioridad):
                 lambda t: convertir_a_enum(Prioridad, t, "prioridad"),
                 crear_filtro_por_prioridad,
             ),
+            Success(crear_filtro_por_texto(busqueda or "")),
         ),
         lambda criterios: combinar_criterios(*criterios),
     )

@@ -8,6 +8,7 @@ from app.core.filtros import (
     crear_filtro_por_entregable,
     crear_filtro_por_estado,
     crear_filtro_por_prioridad,
+    crear_filtro_por_texto,
     crear_filtro_por_responsable,
     filtrar_tareas,
     ordenar_tareas,
@@ -111,3 +112,20 @@ def test_ordenar_no_modifica_la_entrada(tareas):
 
 def test_ordenar_lista_vacia():
     assert ordenar_tareas(()) == ()
+
+# ------------------------------------------------------------ búsqueda por texto (closure)
+def test_filtrar_por_texto_ignora_mayusculas_y_busca_en_el_nombre(tareas):
+    assert ids(filtrar_tareas(tareas, crear_filtro_por_texto("INTERFAZ"))) == [3]
+    assert ids(filtrar_tareas(tareas, crear_filtro_por_texto("  dise"))) == [2]
+
+
+def test_filtrar_por_texto_sin_coincidencias_o_vacio(tareas):
+    assert filtrar_tareas(tareas, crear_filtro_por_texto("zzz")) == ()
+    assert ids(filtrar_tareas(tareas, crear_filtro_por_texto(""))) == [1, 2, 3, 4]
+
+
+def test_criterio_desde_textos_combina_busqueda_con_los_selectores(tareas):
+    resultado = criterio_desde_textos(TODOS, TODOS, "Alta", "pruebas")
+    assert ids(filtrar_tareas(tareas, resultado.valor)) == [4]
+    # Sin el cuarto argumento sigue funcionando igual que antes.
+    assert ids(filtrar_tareas(tareas, criterio_desde_textos(TODOS, TODOS, "Alta").valor)) == [1, 4]

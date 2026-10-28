@@ -19,6 +19,7 @@ from app.ui.comunes import (
     ESTILO_CAJA,
     ESTILO_FILA,
     ESTILO_VACIO,
+    campo_texto,
     mostrar_resultado,
     selector,
 )
@@ -36,6 +37,7 @@ def PantallaKanban(conexion, datos, refrescar, avisar):
     filtro_estado, set_filtro_estado = use_state(TODOS)
     filtro_responsable, set_filtro_responsable = use_state(TODOS)
     filtro_prioridad, set_filtro_prioridad = use_state(TODOS)
+    busqueda, set_busqueda = use_state("")
 
     def crear_manejador_mover(tarea_id, estado):
         """Closure: recuerda qué tarea y a qué estado moverla cuando se haga clic."""
@@ -50,8 +52,10 @@ def PantallaKanban(conexion, datos, refrescar, avisar):
 
         return manejar
 
-    # 1) El CORE arma el criterio de filtrado a partir de los tres selectores.
-    match criterio_desde_textos(filtro_estado, filtro_responsable, filtro_prioridad):
+    # 1) El CORE arma el criterio de filtrado a partir de los tres selectores y la búsqueda.
+    match criterio_desde_textos(
+        filtro_estado, filtro_responsable, filtro_prioridad, busqueda
+    ):
         case Success(valor=criterio):
             visibles = ordenar_tareas(filtrar_tareas(datos.tareas, criterio))
             error_filtro = None
@@ -117,6 +121,7 @@ def PantallaKanban(conexion, datos, refrescar, avisar):
             selector("Estado", filtro_estado, opciones_estado, set_filtro_estado),
             selector("Responsable", filtro_responsable, opciones_responsable, set_filtro_responsable),
             selector("Prioridad", filtro_prioridad, opciones_prioridad, set_filtro_prioridad),
+            campo_texto("Buscar (nombre o descripción)", busqueda, set_busqueda),
         ),
         mensaje,
         html.div({"style": ESTILO_COLUMNAS}, *[vista_columna(e) for e in ESTADOS_KANBAN]),
